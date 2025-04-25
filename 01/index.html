@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>three.jsの基礎</title>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+        background: url(./space.jpg) no-repeat center/cover;
+      }
+    </style>
+  </head>
+  <body>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.175.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.175.0/examples/jsm/"
+        }
+      }
+    </script>
+    <script type="module">
+      import * as THREE from "three";
+      console.log(THREE);
+    </script>
+
+    <script type="module">
+      import * as THREE from "three";
+
+      import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+
+      //シーンの作成
+      const scene = new THREE.Scene();
+      //カメラの作成
+      const camera = new THREE.PerspectiveCamera(
+        50,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000
+      );
+      camera.position.z = 500;
+      //レンダラーの作成
+      const renderer = new THREE.WebGLRenderer({ alpha: true });
+      renderer.setSize(window.innerWidth, window.innerHeight); //サイズ
+      document.body.appendChild(renderer.domElement);
+
+      //マウス
+      const controls = new OrbitControls(camera, renderer.domElement);
+
+      console.log(renderer);
+
+      //geometry 作成
+      const geometry = new THREE.SphereGeometry(100, 64, 32);
+      console.log(geometry);
+
+      const texture = new THREE.TextureLoader().load("./earth.jpg");
+      //マテリアルの作成
+      const meterial = new THREE.MeshStandardMaterial({ map: texture });
+      //   const meterial = new THREE.MeshStandardMaterial({ color: 0xff0000 });
+      console.log(meterial);
+      //メッシュでこみ合わせる
+      const sphere = new THREE.Mesh(geometry, meterial);
+      console.log(sphere);
+      //シーンに追加
+      scene.add(sphere);
+      //ライトの追加
+      const light = new THREE.DirectionalLight(0xffffff);
+      //シーンに追加
+      scene.add(light);
+      //ライトの位置を調整
+      light.position.set(1, 1, 1);
+
+      scene.add(light);
+
+      //変更
+      const update = () => {
+        sphere.rotation.x += 0.01;
+        sphere.rotation.y += 0.01;
+        sphere.rotation.z += 0.01;
+
+        renderer.render(scene, camera);
+        window.requestAnimationFrame(update);
+      };
+      update();
+      const onWindowResize = () => {
+        renderer.setSize(window.innerWidth, window.innerHeight);
+
+        camera.aspect = window.innerWidth / innerHeight;
+        camera.updateProjectionMatrix();
+      };
+      window.addEventListener("resize", onWindowResize);
+      //   renderer.render(scene, camera);
+    </script>
+  </body>
+</html>

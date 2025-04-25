@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Object Transformation</title>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Importmap for Three.js, OrbitControls, Stats.js, and lil-gui -->
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.175.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.175.0/examples/jsm/",
+          "stats": "https://cdn.skypack.dev/stats.js.fps",
+          "lil-gui": "https://cdn.jsdelivr.net/npm/lil-gui@0.20/+esm"
+        }
+      }
+    </script>
+
+    <script type="module">
+      import * as THREE from "three";
+      import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+      import Stats from "stats";
+      import GUI from "lil-gui";
+
+      // Scene
+      const scene = new THREE.Scene();
+
+      // Axes Helper
+      const axesHelper = new THREE.AxesHelper(2);
+      scene.add(axesHelper);
+
+      // Stats (FPS)
+      const stats = new Stats();
+      stats.showPanel(0);
+      document.body.appendChild(stats.dom);
+
+      // GUI
+      const gui = new GUI();
+
+      // Camera
+      const camera = new THREE.PerspectiveCamera(
+        75,
+        window.innerWidth / window.innerHeight
+      );
+      camera.position.z = 3;
+
+      // Group
+      const group = new THREE.Group();
+      scene.add(group);
+      group.add(camera);
+      group.position.x = 1;
+
+      // Shared Material
+      const sharedMaterial = new THREE.MeshBasicMaterial({
+        color: 0x00ffff,
+        wireframe: false,
+      });
+
+      // Box 1
+      const box = new THREE.Mesh(
+        new THREE.BoxGeometry(1, 1, 1),
+        sharedMaterial
+      );
+      group.add(box);
+
+      // Box 2
+      const box2 = new THREE.Mesh(
+        new THREE.BoxGeometry(1, 1, 1),
+        sharedMaterial
+      );
+      box2.position.y = 1;
+      group.add(box2);
+
+      // GUI: Position controls (for box 1)
+      const guiPosition = gui.addFolder("Box Position");
+      guiPosition.add(group.position, "x", -3, 3, 0.1).name("X");
+      guiPosition.add(group.position, "y", -3, 3, 0.1).name("Y");
+      guiPosition.add(group.position, "z", -3, 3, 0.1).name("Z");
+
+      // GUI: Material controls (for shared material)
+      const guiMaterial = gui.addFolder("Material");
+      guiMaterial.add(sharedMaterial, "wireframe");
+      guiMaterial.addColor(sharedMaterial, "color");
+
+      // Renderer
+      const renderer = new THREE.WebGLRenderer();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.body.appendChild(renderer.domElement);
+
+      // Controls
+      const controls = new OrbitControls(camera, renderer.domElement);
+
+      // Render loop
+      const animate = () => {
+        stats.begin();
+        controls.update();
+        renderer.render(scene, camera);
+        stats.end();
+        requestAnimationFrame(animate);
+      };
+
+      animate();
+
+      // Resize listener
+      window.addEventListener("resize", () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+    </script>
+  </body>
+</html>
